@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 df = load.load()
 df.dropna(subset=["runnerName"],inplace=True)
-df.fillna({"place" : "Empty", "clubName": "Empty"},inplace=True)
+df.fillna({"prefacture" : "Empty", "clubName": "Empty"},inplace=True)
 
 runner = LabelEncoder()
 runner = runner.fit(df["runnerName"])
@@ -19,8 +19,8 @@ club = club.fit(df["clubName"])
 df["clubName_L"] = club.transform(df["clubName"])
 
 place = LabelEncoder()
-place = place.fit(df["place"])
-df["place_L"] = place.transform(df["place"])
+place = place.fit(df["prefacture"])
+df["prefacture_L"] = place.transform(df["prefacture"])
 
 df["race_L"] = df["eventName"] + df["classId"].astype(str)
 event = LabelEncoder()
@@ -35,8 +35,8 @@ df = df[~((df["eventName"] == "2019年度日本学生オリエンテーリング
 query = df.groupby("race_L").count()
 query_v = valid.groupby("race_L").count()
 
-lgtrain = lgb.Dataset(df[["runnerName_L","place_L"]].values, df["lapRank"].values, categorical_feature=[0,1],group=query["runnerName"])
-lgvalid = lgb.Dataset(valid[["runnerName_L","place_L"]].values, valid["lapRank"].values, categorical_feature=[0,1],group=query_v["runnerName"])
+lgtrain = lgb.Dataset(df[["runnerName_L","prefacture_L"]].values, df["lapRank"].values, categorical_feature=[0,1],group=query["runnerName"])
+lgvalid = lgb.Dataset(valid[["runnerName_L","prefacture_L"]].values, valid["lapRank"].values, categorical_feature=[0,1],group=query_v["runnerName"])
 
 label_gain = []
 
@@ -71,22 +71,22 @@ lgb_clf = lgb.train(
 # 予測用コード
 # 男子の予想
 target = pd.read_csv("targetRunnerList_m.csv")
-target["place"] = "[望郷の森]"
+target["prefacture"] = "栃木"
 target["runnerName_L"] = runner.transform(target["runnerName"])
-target["place_L"] = place.transform(target["place"])
+target["prefacture_L"] = place.transform(target["prefacture"])
 
-y_predict = lgb_clf.predict(target[["runnerName_L"]].values)
+y_predict = lgb_clf.predict(target[["runnerName_L","prefacture_L"]].values)
 target["score"] = y_predict
 target["rank"] = target.rank(method="min")["score"]
 target[["rank","runnerName","score"]].sort_values("score").to_csv("predict_me.csv",encoding="cp932")
 
 #女子の予想
 target = pd.read_csv("targetRunnerList.csv")
-target["place"] = "[望郷の森]"
+target["prefacture"] = "栃木"
 target["runnerName_L"] = runner.transform(target["runnerName"])
-target["place_L"] = place.transform(target["place"])
+target["prefacture_L"] = place.transform(target["prefacture"])
 
-y_predict = lgb_clf.predict(target[["runnerName_L"]].values)
+y_predict = lgb_clf.predict(target[["runnerName_L","prefacture_L"]].values)
 target["score"] = y_predict
 target["rank"] = target.rank(method="min")["score"]
 target[["rank","runnerName","score"]].sort_values("score").to_csv("predict_we.csv",encoding="cp932")

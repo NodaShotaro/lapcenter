@@ -12,7 +12,7 @@ fp = FontProperties(fname=r'C:\Windows\Fonts\YUMIN.TTF', size=8)
 
 def load():
 
-    df = pd.read_csv('csv/join.csv',encoding='utf-8')
+    df = pd.read_csv('csv/addPrefacture.csv',encoding='utf-8')
     df['date'] = pd.to_datetime(df['date'])
 
     return df
