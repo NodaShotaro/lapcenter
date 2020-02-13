@@ -235,15 +235,19 @@ domain = "https://mulka2.com/lapcenter/lapcombat2/"
 url_list = []
 eventList_checked = []
 
+print("load processed race list")
+
 # raceList_readedからURLをロード
-with open("csv/raceList.csv",encoding='utf-8') as f:
+with open("settings/processedRaceList.csv",encoding='utf-8') as f:
     eventList= csv.reader(f,delimiter=",",doublequote=True)
 
     for t in eventList:
         eventList_checked.append(t)
 
+print("load race list")
+
 # raceListからURLをロード
-with open("raceList.csv",encoding='utf-8') as f:
+with open("settings/raceList.csv",encoding='utf-8') as f:
     eventList = csv.reader(f,delimiter=",",doublequote=True)
 
     for t in eventList:
@@ -273,17 +277,21 @@ for url in url_list:
 df = pd.DataFrame(runnerTable)
 df.replace(' ','',inplace=True)
 df.replace('　','',inplace=True)
-df.to_csv("csv/runner_tmp.csv",encoding="utf-8",index=False)
+
+runner = pd.read_csv("csv/runner.csv",encoding="utf-8")
+(pd.concat([runner,df])).to_csv("csv/runner.csv",encoding="utf-8",index=False)
 
 
 # レッグ番号の△を排除
 df_lap = pd.DataFrame(legTable)
 df_lap.replace('△',0,inplace=True)
-df_lap.to_csv("csv/leg_tmp.csv",encoding="utf-8",index=False)
+
+lap = pd.read_csv("csv/leg.csv",encoding="utf-8")
+(pd.concat([df_lap,lap])).to_csv("csv/leg.csv",encoding="utf-8",index=False)
 
 # レースリストの格納
 df_raceList = pd.DataFrame(eventList_checked)
-df_raceList.to_csv("csv/raceList.csv",encoding="utf-8",index=False)
+df_raceList.to_csv("settings/processedRaceList.csv",encoding="utf-8",index=False)
 
 #with open(filename,"w") as f:
 #    json.dump(runnerTable,f,indent=4,ensure_ascii=False)
